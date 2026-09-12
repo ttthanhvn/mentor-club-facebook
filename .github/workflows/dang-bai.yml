@@ -4,18 +4,12 @@ name: dang-bai
 #   body: {"event_type":"dang-bai","client_payload":{...}}
 # Hoặc bấm tay: tab Actions → dang-bai → Run workflow.
 
+# ⚠️ ĐÃ GỠ LỊCH cron của GitHub ngày 2026-09-12.
+# Lý do: đo thật thấy cron chạy TRỄ 4 TIẾNG (đặt 00:00-00:20 UTC, thực tế nổ 04:12-04:24 UTC).
+# Bài đăng theo giờ mà cò trễ 4 tiếng thì vô nghĩa, và trễ thất thường còn nguy hơn không chạy.
+# Cò thật nằm ở Lark: automation "Tại thời gian kích hoạt của bản ghi" đọc cột "Lịch đăng bài"
+# của bảng 14.3 và bắn repository_dispatch — đo thật: lệch 9 GIÂY.
 on:
-
-  # Lịch đăng hằng ngày — 07:00, 07:05, 07:10, 07:15, 07:20 GIỜ VIỆT NAM.
-  # GitHub chạy giờ UTC, Việt Nam = UTC+7, nên 07:00 VN = 00:00 UTC.
-  # Mỗi mốc bắn một lần; engine quét bảng 14.3 và CHỈ đăng dòng đã tới giờ,
-  # nên 5 mốc này tự giãn 5 bài ra 5 phút mà không cần code thêm.
-  schedule:
-    - cron: '0 0 * * *'
-    - cron: '5 0 * * *'
-    - cron: '10 0 * * *'
-    - cron: '15 0 * * *'
-    - cron: '20 0 * * *'
   repository_dispatch:
     types: [dang-bai]
   workflow_dispatch:
