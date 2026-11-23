@@ -4,12 +4,28 @@ name: dang-bai
 #   body: {"event_type":"dang-bai","client_payload":{...}}
 # Hoặc bấm tay: tab Actions → dang-bai → Run workflow.
 
-# ⚠️ ĐÃ GỠ LỊCH cron của GitHub ngày 2026-09-12.
-# Lý do: đo thật thấy cron chạy TRỄ 4 TIẾNG (đặt 00:00-00:20 UTC, thực tế nổ 04:12-04:24 UTC).
-# Bài đăng theo giờ mà cò trễ 4 tiếng thì vô nghĩa, và trễ thất thường còn nguy hơn không chạy.
-# Cò thật nằm ở Lark: automation "Tại thời gian kích hoạt của bản ghi" đọc cột "Lịch đăng bài"
-# của bảng 14.3 và bắn repository_dispatch — đo thật: lệch 9 GIÂY.
+# CÒ CHÍNH vẫn là Lark: automation "Tại thời gian kích hoạt của bản ghi" đọc cột "Lịch đăng bài"
+# của bảng 14.3 và bắn repository_dispatch — đo thật: lệch 9 GIÂY. Đó là thứ cho bài lên ĐÚNG GIỜ.
+#
+# ⚠️ Lịch sử: cron GitHub từng bị gỡ ngày 2026-09-12 vì đo thật thấy TRỄ 4 TIẾNG
+# (đặt 00:00-00:20 UTC, thực tế nổ 04:12-04:24 UTC). Làm CÒ CHÍNH thì trễ vậy là vô nghĩa.
+#
+# ✅ Bật lại ngày 2026-11-23, nhưng CHỈ LÀM LƯỚI DỰ PHÒNG, không phải cò chính.
+# Lý do: proxy ra Internet của Lark hỏng chập chờn (proxyconnect tcp: dial tcp 10.100.4.74:8080),
+# ngày 23/11 hỏng 6/10 lệnh buổi sáng. Lệnh quét bù đặt trong Lark cũng đi qua đúng proxy đó
+# nên chết theo. Cron GitHub KHÔNG phụ thuộc Lark chút nào, nên vớt được.
+# Chạy không có record_id => post-feed.js quét cả bảng 14.3, bỏ qua dòng đã "Thành công"
+# và dòng hẹn giờ tương lai, chỉ đăng dòng đã tới giờ mà còn trống trạng thái.
+# Ngày bình thường nó chạy không công. Trễ 1-4 tiếng vẫn hơn là bài không lên.
+#
+# Vì sao không chạy 30 phút/lần suốt ngày đêm: repo này PRIVATE nên phút Actions bị tính hạn mức.
+# Mỗi lần chạy 35-100 giây => 48 lần/ngày tốn ~1.440-2.880 phút/tháng, dễ vượt mức miễn phí.
+# Nên chỉ chạy trong 2 khung 4 tiếng ngay sau giờ đăng: 16 lần/ngày, che đủ mà tốn ~1/3.
+# Phút lẻ :07 và :37 thay vì :00 và :30 — GitHub dồn tải ở đầu giờ nên đặt lệch sẽ bớt trễ.
 on:
+  schedule:
+    - cron: '7,37 1-4 * * *'    # 08:07 -> 11:37 giờ VN — vớt khung đăng sáng 07:00-07:45
+    - cron: '7,37 11-14 * * *'  # 18:07 -> 21:37 giờ VN — vớt khung đăng chiều 17:00-17:40
   repository_dispatch:
     types: [dang-bai]
   workflow_dispatch:
