@@ -18,14 +18,14 @@ name: dang-bai
 # và dòng hẹn giờ tương lai, chỉ đăng dòng đã tới giờ mà còn trống trạng thái.
 # Ngày bình thường nó chạy không công. Trễ 1-4 tiếng vẫn hơn là bài không lên.
 #
-# Vì sao không chạy 30 phút/lần suốt ngày đêm: repo này PRIVATE nên phút Actions bị tính hạn mức.
-# Mỗi lần chạy 35-100 giây => 48 lần/ngày tốn ~1.440-2.880 phút/tháng, dễ vượt mức miễn phí.
-# Nên chỉ chạy trong 2 khung 4 tiếng ngay sau giờ đăng: 16 lần/ngày, che đủ mà tốn ~1/3.
+# 2026-11-25: repo chuyển sang PUBLIC => Actions MIỄN PHÍ KHÔNG GIỚI HẠN, hết lo hạn mức phút.
+# Nhờ vậy nới lịch từ 16 mốc/ngày (2 khung) lên 48 mốc/ngày (30 phút/lần, suốt ngày đêm).
+# Cần nới vì đo thật 23-25/11: GitHub BỎ khoảng 87% số mốc đã đặt, mốc nào chạy thì
+# thường trễ 6-8 tiếng. Đặt dày là cách duy nhất để tăng xác suất có mốc thật sự nổ.
 # Phút lẻ :07 và :37 thay vì :00 và :30 — GitHub dồn tải ở đầu giờ nên đặt lệch sẽ bớt trễ.
 on:
   schedule:
-    - cron: '7,37 1-4 * * *'    # 08:07 -> 11:37 giờ VN — vớt khung đăng sáng 07:00-07:45
-    - cron: '7,37 11-14 * * *'  # 18:07 -> 21:37 giờ VN — vớt khung đăng chiều 17:00-17:40
+    - cron: '7,37 * * * *'      # 30 phút/lần, 24/7 — vớt bài sót bất kể khung nào
   repository_dispatch:
     types: [dang-bai]
   workflow_dispatch:
